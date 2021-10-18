@@ -1,5 +1,6 @@
 import discord
 import requests
+from datetime import datetime
 
 Token = ""
 client = discord.Client()
@@ -8,6 +9,11 @@ BlockHalving = 1680000
 BrHalving = 12.5
 BrNow = BrHalving * 2
 GetBlockURL = "https://ocm-backend.blkidx.org/info"
+
+def getTime():
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    return current_time
 
 def getBlockCount():
     currentBlockHeight = requests.get(GetBlockURL).json()
@@ -29,16 +35,16 @@ def getTimeLeft(blocksRemain):
         return "%d Day(s) %d Hours %d Minutes %d Seconds" % (day, hour, minutes, seconds)
     elif day == 0 and hour != 0:
         if hour == 1:
-            return "%dHour %dMinutes %dSeconds" % (hour, minutes, seconds)
-        return "%dHours %dM %dS" % (hour, minutes, seconds)
+            return "%d Hour %d Minutes %d Seconds" % (hour, minutes, seconds)
+        return "%d Hours %d Minutes %d Seconds" % (hour, minutes, seconds)
     elif day == 0 and hour == 0 and minutes != 0:
-            return "%dM %dS" % (minutes, seconds)
+            return "%d Minutes %d Seconds" % (minutes, seconds)
     else:
-            return "%dS" % (seconds)
+            return "%d Seconds" % (seconds)
 
 @client.event
 async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
+    print(getTime(), 'We have logged in as {0.user}'.format(client))
 
 @client.event
 async def on_message(message):
@@ -46,7 +52,7 @@ async def on_message(message):
         return
 
     if message.content.startswith('?halving'):
-        print("?halving command detected")
+        print(getTime(), "?halving command detected")
         blocksRemain = getBlockCount()
 
         if blocksRemain > 0:
@@ -56,12 +62,13 @@ async def on_message(message):
             send = "Vertcoin's blockreward has been halved from %s VTC to %s VTC" %(BrNow, BrHalving)
 
         await message.channel.send(send)
-        print("Responded to command")
+        print(getTime(), "Responded to command")
+
 
     if message.content.startswith('?whatishalving'):
-        print("Question halving command detected")
+        print(getTime(), "Question halving command detected")
         send = "On block %s Vertcoin's blockreward will be cut in half from %s VTC to %s VTC" %(BlockHalving, BrNow, BrHalving)
         await message.channel.send(send)
-        print("Responded to command")
+        print(getTime(), "Responded to command")
 
 client.run(Token)
